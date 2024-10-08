@@ -10,7 +10,7 @@ namespace AppSnacks.Services
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger<ApiService> _logger;
-        private readonly string _baseUrl = "url";
+        private readonly string _baseUrl = "https://nbn754d3-7066.uks1.devtunnels.ms/";
 
         JsonSerializerOptions _serializerOptions;
         public ApiService(HttpClient httpClient,
