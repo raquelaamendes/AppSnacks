@@ -9,5 +9,6 @@ namespace AppSnacks
     public static class AppConfig
     {
         public static readonly string BaseUrl = "https://nbn754d3-7066.uks1.devtunnels.ms/";
+        public static readonly string tituloHomePage = "Combos Mac";
     }
 }
