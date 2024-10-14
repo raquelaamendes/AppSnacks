@@ -68,17 +68,72 @@ public partial class ProductDetailsPage : ContentPage
 
     private void BtnRemove_Clicked(object sender, EventArgs e)
     {
+        if (int.TryParse(LblQuantity.Text, out int quantity) &&
+            decimal.TryParse(LblProductPrice.Text, out decimal priceUnit))
+        {
+            // Decrementa a quantidade, e nao permite que seja menor que 1
+            quantity = Math.Max(1, quantity - 1);
+            LblQuantity.Text = quantity.ToString();
 
+            // Calcula o total
+            var priceTotal = quantity * priceUnit;
+            LblPriceTotal.Text = priceTotal.ToString();
+        }
+        else
+        {
+            // Tratar caso as conversoes falhem
+            DisplayAlert("Error", "Invalid Values", "OK");
+        }
     }
 
     private void BtnAdd_Clicked(object sender, EventArgs e)
     {
+        if (int.TryParse(LblQuantity.Text, out int quantity) &&
+       decimal.TryParse(LblProductPrice.Text, out decimal priceUnit))
+        {
+            // Incrementa a quantidade
+            quantity++;
+            LblQuantity.Text = quantity.ToString();
+
+            // Calcula o total
+            var priceTotal = quantity * priceUnit;
+            LblPriceTotal.Text = priceTotal.ToString(); 
+        }
+        else
+        {
+            // Tratar caso as conversoes falhem
+            DisplayAlert("Error", "Invalid Values", "OK");
+        }
 
     }
 
-    private void BtnAddToCart_Clicked(object sender, EventArgs e)
+    private async void BtnAddToCart_Clicked(object sender, EventArgs e)
     {
-
+        try
+        {
+            var shoppingCart = new ShoppingCart()
+            {
+                Quantity = Convert.ToInt32(LblQuantity.Text),
+                Price = Convert.ToDecimal(LblProductPrice.Text),
+                Total = Convert.ToDecimal(LblPriceTotal.Text),
+                ProductId = _productId,
+                ClientId = Preferences.Get("userid", 0)
+            };
+            var response = await _apiService.AddItemToCart(shoppingCart);
+            if (response.Data)
+            {
+                await DisplayAlert("Success", "Item added to cart!", "OK");
+                await Navigation.PopAsync();
+            }
+            else
+            {
+                await DisplayAlert("Error", $"Error adding item to cart: {response.ErrorMessage}", "OK");
+            }
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"Error: {ex.Message}", "OK");
+        }
     }
 
     private async Task DisplayLoginPage()
