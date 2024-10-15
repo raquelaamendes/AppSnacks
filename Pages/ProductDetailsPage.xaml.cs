@@ -114,7 +114,7 @@ public partial class ProductDetailsPage : ContentPage
             var shoppingCart = new ShoppingCart()
             {
                 Quantity = Convert.ToInt32(LblQuantity.Text),
-                Price = Convert.ToDecimal(LblProductPrice.Text),
+                UnitPrice = Convert.ToDecimal(LblProductPrice.Text),
                 Total = Convert.ToDecimal(LblPriceTotal.Text),
                 ProductId = _productId,
                 ClientId = Preferences.Get("userid", 0)

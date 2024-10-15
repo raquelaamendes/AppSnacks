@@ -161,6 +161,12 @@ namespace AppSnacks.Services
             return await GetAsync<Product>(endpoint);
         }
 
+        public async Task<(List<CartOrderItem>? CartOrderItems, string? ErrorMessage)> GetCartOrderItems(int userId)
+        {
+            var endpoint = $"api/ItemsShoppingCart/{userId}";
+            return await GetAsync<List<CartOrderItem>>(endpoint);
+        }
+
         private async Task<(T? Data, string? ErrorMessage)> GetAsync<T>(string endpoint)
         {
             try
