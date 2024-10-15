@@ -25,11 +25,34 @@ public partial class CartPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await GetCartOrderItems();
+        if (IsNavigatingToEmptyCartPage()) return;
+
+        bool hasItems = await GetCartOrderItems();
+
+        if (hasItems)
+        {
+            ShowAddress();
+        }
+        else
+        {
+            await NavigateToEmptyCartPage();
+        }
+
+    }
+
+    private async Task NavigateToEmptyCartPage()
+    {
+        LblAddress.Text = string.Empty;
+        _isNavigatingToEmptyCartPage = true;
+        await Navigation.PushAsync(new EmptyCartPage());
+    }
+
+    private void ShowAddress()
+    {
 
         bool addressExists = Preferences.ContainsKey("address");
 
-        if (addressExists) 
+        if (addressExists)
         {
             string name = Preferences.Get("name", string.Empty);
             string address = Preferences.Get("address", string.Empty);
@@ -42,10 +65,19 @@ public partial class CartPage : ContentPage
         {
             LblAddress.Text = "Enter your address";
         }
-
     }
 
-    private async Task<IEnumerable<CartOrderItem>> GetCartOrderItems()
+    private bool IsNavigatingToEmptyCartPage()
+    {
+        if (_isNavigatingToEmptyCartPage)
+        {
+            _isNavigatingToEmptyCartPage = false;
+            return true;
+        }
+        return false;
+    }
+
+    private async Task<bool> GetCartOrderItems()
     {
         try
         {
@@ -57,15 +89,13 @@ public partial class CartPage : ContentPage
             {
                 // Redirecionar para a pagina de login
                 await DisplayLoginPage();
-                return Enumerable.Empty<CartOrderItem>();
-                //return false;
+                return false;
             }
 
             if (itemsShoppingCart == null)
             {
                 await DisplayAlert("Error", errorMessage ?? "Error getting items from shopping cart!", "OK");
-                return Enumerable.Empty<CartOrderItem>();
-                //return false;
+                return false;
             }
 
             ItemsShoppingCart.Clear();
@@ -76,14 +106,18 @@ public partial class CartPage : ContentPage
 
             CvCart.ItemsSource = ItemsShoppingCart;
             UpdateTotalPrice();
-            return itemsShoppingCart;
+
+            if (!ItemsShoppingCart.Any())
+            {
+                return false;
+            }
+            return true;
 
         }
         catch (Exception ex)
         {
             await DisplayAlert("Error", $"Error: {ex.Message}", "OK");
-            return Enumerable.Empty<CartOrderItem>();
-            //return false;
+            return false;
         }
     }
 
@@ -151,8 +185,39 @@ public partial class CartPage : ContentPage
         Navigation.PushAsync(new AddressPage());
     }
 
-    private void TapConfirmOrder_Tapped(object sender, TappedEventArgs e)
+    private async void TapConfirmOrder_Tapped(object sender, TappedEventArgs e)
     {
+        if (ItemsShoppingCart == null || !ItemsShoppingCart.Any())
+        {
+            await DisplayAlert("Info", "Your cart is empty or your order was already confirmed.", "OK");
+            return;
+        }
 
+        var order = new Order()
+        {
+            Address = LblAddress.Text,
+            UserId = Preferences.Get("userid", 0),
+            Total = Convert.ToDecimal(LblPriceTotal.Text)
+        };
+
+        var response = await _apiService.ConfirmOrder(order);
+
+        if (response.HasError)
+        {
+            if (response.ErrorMessage == "Unauthorized")
+            {
+                // Redirecionar para a pagina de login
+                await DisplayLoginPage();
+                return;
+            }
+            await DisplayAlert("Ups!!", $"Error: {response.ErrorMessage}", "Cancel");
+            return;
+        }
+
+        ItemsShoppingCart.Clear();
+        LblAddress.Text = "Enter your address";
+        LblPriceTotal.Text = "0.00";
+
+        await Navigation.PushAsync(new OrderConfirmedPage());
     }
 }
