@@ -79,6 +79,7 @@
 	  <None Remove="Resources\Images\settings.png" />
 	  <None Remove="Resources\Images\snack.png" />
 	  <None Remove="Resources\Images\uploadphoto.png" />
+	  <None Remove="Resources\Images\user1.png" />
 	  <None Remove="Resources\Splash\lanche.svg" />
 	</ItemGroup>
 
