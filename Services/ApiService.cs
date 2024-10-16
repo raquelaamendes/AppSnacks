@@ -91,6 +91,8 @@ namespace AppSnacks.Services
                 Preferences.Set("accesstoken", result!.AccessToken);
                 Preferences.Set("userid", (int)result.UserId!);
                 Preferences.Set("username", result.UserName);
+                Preferences.Set("useremail", result.UserEmail);
+                Preferences.Set("userphone", result.UserPhone);
 
                 return new ApiResponse<bool> { Data = true };
             }
