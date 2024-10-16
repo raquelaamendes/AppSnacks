@@ -279,6 +279,21 @@ namespace AppSnacks.Services
             return await GetAsync<ProfileImage>(endpoint);
         }
 
+        public async Task<(List<UserOrder>?, string? ErrorMessage)> GetUserOrder(int userId)
+        {
+
+            string endpoint = $"api/Orders/OrdersPerUser/{userId}";
+
+            return await GetAsync<List<UserOrder>>(endpoint);
+        }
+
+        public async Task<(List<OrderDetails>?, string? ErrorMessage)> GetOrderDetails(int orderId)
+        {
+            string endpoint = $"api/Orders/OrderDetails/{orderId}";
+
+            return await GetAsync<List<OrderDetails>>(endpoint);
+        }
+
         private async Task<(T? Data, string? ErrorMessage)> GetAsync<T>(string endpoint)
         {
             try
